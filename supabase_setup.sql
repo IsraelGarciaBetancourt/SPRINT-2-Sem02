@@ -109,13 +109,13 @@ CREATE POLICY "Usuario ve su propia cuenta de ahorro"
 -- de prueba manualmente en la tabla sin pasar por el registro
 -- ============================================================
 
-/*
+
 -- Primero regístrate en el portal, luego reemplaza el UUID:
 -- Ejecuta: SELECT id FROM auth.users; para obtener tu UUID
 
 DO $$
 DECLARE
-  uid UUID := '1c1caac1-7a53-4723-8ef2-e18bdcf0b030';  -- <-- pegar el UUID de tu usuario
+  uid UUID := '644143aa-d482-4cf6-895c-50bda55da0e8';  
   cc_id UUID;
   ca_id UUID;
 BEGIN
@@ -133,14 +133,32 @@ BEGIN
   VALUES (uid, 12875.50, 20000, 3.5, '2024-01-15');
 
   -- Transacciones
-  INSERT INTO public.transacciones (user_id, cuenta_id, tipo, descripcion, monto, fecha) VALUES
-    (uid, cc_id, 'debito',  'Pago agua SEDAPAL',       85.00,   now() - interval '1 day'),
-    (uid, cc_id, 'credito', 'Transferencia recibida',  500.00,  now() - interval '2 days'),
-    (uid, cc_id, 'debito',  'Compra supermercado WONG',230.50,  now() - interval '3 days'),
-    (uid, cc_id, 'debito',  'Pago Netflix',            39.90,   now() - interval '5 days'),
-    (uid, cc_id, 'credito', 'Depósito sueldo',         3500.00, now() - interval '7 days'),
-    (uid, ca_id, 'credito', 'Depósito ahorro',         1000.00, now() - interval '10 days'),
-    (uid, cc_id, 'debito',  'Pago luz ENEL',           120.00,  now() - interval '12 days'),
-    (uid, cc_id, 'credito', 'Devolución compra',       150.00,  now() - interval '15 days');
+  INSERT INTO public.transacciones (user_id, cuenta_id, tipo, descripcion, monto, fecha)
+  SELECT * FROM (
+    VALUES
+          (uid, cc_id, 'debito',  'Pago agua SEDAPAL',       85.00,   now() - interval '1 day'),
+          (uid, cc_id, 'credito', 'Transferencia recibida',  500.00,  now() - interval '2 days'),
+          (uid, cc_id, 'debito',  'Compra supermercado WONG',230.50,  now() - interval '3 days'),
+          (uid, cc_id, 'debito',  'Pago Netflix',            39.90,   now() - interval '5 days'),
+          (uid, cc_id, 'credito', 'Depósito sueldo',         3500.00, now() - interval '7 days'),
+          (uid, ca_id, 'credito', 'Depósito ahorro',         1000.00, now() - interval '10 days'),
+          (uid, cc_id, 'debito',  'Pago luz ENEL',           120.00,  now() - interval '12 days'),
+          (uid, cc_id, 'credito', 'Devolución compra',       150.00,  now() - interval '15 days'),
+          (uid, cc_id, 'debito',  'Compra farmacia Inkafarma',45.80,   now() - interval '1 hour'),
+          (uid, cc_id, 'debito',  'Pago internet Movistar',   89.90,   now() - interval '2 days'),
+          (uid, cc_id, 'credito', 'Reembolso bancario',       120.00,  now() - interval '4 days'),
+          (uid, ca_id, 'debito',  'Retiro cajero BCP',        300.00,  now() - interval '6 days'),
+          (uid, cc_id, 'debito',  'Consumo restaurante',      75.50,   now() - interval '8 days'),
+          (uid, cc_id, 'credito', 'Ingreso freelance',        600.00,  now() - interval '9 days'),
+          (uid, ca_id, 'credito', 'Intereses ganados',        15.75,   now() - interval '14 days')
+  ) AS t(user_id, cuenta_id, tipo, descripcion, monto, fecha)
+    WHERE NOT EXISTS (
+      SELECT 1 FROM public.transacciones x
+      WHERE x.user_id = t.user_id
+        AND x.cuenta_id = t.cuenta_id
+        AND x.descripcion = t.descripcion
+        AND x.monto = t.monto
+        AND date_trunc('second', x.fecha) = date_trunc('second', t.fecha)
+    );
 END $$;
-*/
+
