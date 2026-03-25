@@ -115,7 +115,7 @@ CREATE POLICY "Usuario ve su propia cuenta de ahorro"
 
 DO $$
 DECLARE
-  uid UUID := '644143aa-d482-4cf6-895c-50bda55da0e8';  
+  uid UUID := '134bdb07-54c7-49f1-9ae8-84e28210358d';  
   cc_id UUID;
   ca_id UUID;
 BEGIN
